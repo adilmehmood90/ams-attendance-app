@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - AMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-primary">AMS</h4>
+                        <small class="text-muted">Attendance Management System</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="employees.html">
+                                <i class="bi bi-people"></i> Employees
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="attendance.html">
+                                <i class="bi bi-calendar-check"></i> Mark Attendance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reports.html">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Reports
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="position-absolute bottom-0 start-0 p-3 w-100">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-person-circle fs-4 text-muted"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-2">
+                                <div class="fw-bold small text-truncate" id="user-email"></div>
+                                <a href="#" class="text-danger small" onclick="logout()">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Mark Attendance</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="input-group me-2">
+                            <input type="date" class="form-control" id="attendanceDate" value="">
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadAttendanceForDate()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="markAllPresent()">
+                            <i class="bi bi-check2-all"></i> Mark All Present
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Attendance Form -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="attendanceTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Employee ID</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Comment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-list">
+                                    <!-- Will be populated by JavaScript -->
+                                    <tr>
+                                        <td colspan="5" class="text-center">Loading employees...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="button" class="btn btn-success" onclick="saveAttendance()">
+                            <i class="bi bi-save"></i> Save Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Update Previous Records -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-clock-history me-2"></i>Update Previous Records
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="updateEmployee" class="form-label">Select Employee</label>
+                                <select class="form-select" id="updateEmployee">
+                                    <option value="" selected disabled>Select Employee</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="updateDate" class="form-label">Select Date</label>
+                                <input type="date" class="form-control" id="updateDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="updateStatus" class="form-label">Status</label>
+                                <select class="form-select" id="updateStatus">
+                                    <option value="Present">Present</option>
+                                    <option value="Absent">Absent</option>
+                                    <option value="Leave">Leave</option>
+                                    <option value="OFF">OFF</option>
+                                    <option value="WFH">WFH</option>
+                                    <option value="DO">DO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="updateComment" class="form-label">Comment (if any)</label>
+                                <input type="text" class="form-control" id="updateComment" placeholder="Enter comment">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="button" class="btn btn-primary" onclick="updateAttendanceRecord()">
+                                    <i class="bi bi-arrow-repeat"></i> Update Record
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Status Legend Modal -->
+    <div class="modal fade" id="statusLegendModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Status Legend</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-success me-2">P</span> Present</span>
+                            <small class="text-muted">Employee is present in office</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-danger me-2">A</span> Absent</span>
+                            <small class="text-muted">Employee is absent without notice</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-warning text-dark me-2">L</span> Leave</span>
+                            <small class="text-muted">Employee is on approved leave</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-secondary me-2">OFF</span> OFF</span>
+                            <small class="text-muted">Employee's weekly off day</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-info me-2">WFH</span> Work From Home</span>
+                            <small class="text-muted">Employee is working remotely</small>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><span class="badge bg-dark me-2">DO</span> Day Off</span>
+                            <small class="text-muted">Compensatory day off</small>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- jQuery and DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Input Mask -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Initialize Firebase and load attendance -->
+    <script>
+        // Wait for Firebase to be initialized
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get Firestore database instance from global scope
+            const db = window.firebaseDb || firebase.firestore();
+            
+            // Make db available globally for attendance.js
+            window.db = db;
+            
+            // Now load the attendance script
+            const script = document.createElement('script');
+            script.src = 'js/attendance.js';
+            document.body.appendChild(script);
+        });
+    </script>
+</body>
+</html>

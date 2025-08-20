@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <h2 class="text-center mb-4">AMS Login</h2>
+            <div id="logout-message" class="alert alert-success d-none mb-3" role="alert">
+                <!-- Logout message will be inserted here by JavaScript -->
+            </div>
+            <div id="login-form">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="login()">Login</button>
+                <p class="text-center mt-3">
+                    Don't have an account? <a href="#" onclick="showRegister()">Register</a>
+                </p>
+            </div>
+            <div id="register-form" style="display: none;">
+                <div class="mb-3">
+                    <label for="reg-email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="reg-email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="reg-password" class="form-label">Password (min 6 characters)</label>
+                    <input type="password" class="form-control" id="reg-password" minlength="6" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm-password" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm-password" required>
+                </div>
+                <button type="button" class="btn btn-secondary w-100 mb-2" onclick="showLogin()">Back to Login</button>
+                <button type="button" class="btn btn-success w-100" onclick="register()">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (must be first) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration (must be after Firebase SDK) -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- App Scripts (must be after Firebase initialization) -->
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Initialize App -->
+    <script>
+        // Check if Firebase is properly initialized
+        function checkFirebase() {
+            if (typeof firebase === 'undefined' || !window.firebaseApp) {
+                console.error('Firebase not loaded properly');
+                const loginForm = document.getElementById('login-form');
+                if (loginForm) {
+                    loginForm.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h4>Application Error</h4>
+                            <p>Failed to load required resources. Please try the following:</p>
+                            <ol>
+                                <li>Check your internet connection</li>
+                                <li>Disable any ad-blockers for this site</li>
+                                <li>Clear your browser cache</li>
+                                <li>Refresh the page</li>
+                            </ol>
+                            <button class="btn btn-warning mt-2" onclick="window.location.reload()">Refresh Page</button>
+                        </div>
+                    `;
+                }
+            } else {
+                console.log('Firebase is ready');
+                // Check if user is already logged in
+                if (window.firebaseAuth) {
+                    window.firebaseAuth.onAuthStateChanged((user) => {
+                        if (user) {
+                            // User is signed in, redirect to dashboard
+                            window.location.href = 'dashboard.html';
+                        }
+                    });
+                }
+            }
+        }
+
+        // Show logout message if redirected from logout
+        function checkForLogoutMessage() {
+            const logoutMessage = sessionStorage.getItem('logoutMessage');
+            if (logoutMessage) {
+                const messageElement = document.getElementById('logout-message');
+                if (messageElement) {
+                    messageElement.textContent = logoutMessage;
+                    messageElement.classList.remove('d-none');
+                    // Remove the message after 5 seconds
+                    setTimeout(() => {
+                        messageElement.classList.add('d-none');
+                    }, 5000);
+                }
+                // Clear the message from session storage
+                sessionStorage.removeItem('logoutMessage');
+            }
+        }
+
+        // Wait for the page to fully load before checking Firebase and messages
+        function initializePage() {
+            checkForLogoutMessage();
+            checkFirebase();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initializePage, 500);
+            });
+        } else {
+            setTimeout(initializePage, 500);
+        }
+    </script>
+</body>
+</html>
