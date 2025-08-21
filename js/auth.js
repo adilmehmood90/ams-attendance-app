@@ -215,15 +215,32 @@ function initializeAuthState() {
     if (!auth) return;
     
     auth.onAuthStateChanged((user) => {
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        
         if (user) {
             // User is signed in
-            if (window.location.pathname === '/index.html' || window.location.pathname === '/') {
-                window.location.href = 'dashboard.html';
+            if (currentPath === 'index.html' || currentPath === '') {
+                // Check if we're coming from a logout
+                const logoutMessage = sessionStorage.getItem('logoutMessage');
+                if (logoutMessage) {
+                    sessionStorage.removeItem('logoutMessage');
+                    showMessage(logoutMessage, 'success');
+                    return;
+                }
+                // Redirect to dashboard only if we're on the login/register page
+                setTimeout(() => {
+                    if (!window.location.href.includes('dashboard.html')) {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 100);
             }
         } else {
             // User is signed out
-            if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
-                window.location.href = 'index.html';
+            if (currentPath !== 'index.html' && currentPath !== '') {
+                // Only redirect if we're not already on the login page
+                if (!window.location.href.includes('index.html')) {
+                    window.location.href = 'index.html';
+                }
             }
         }
     });
