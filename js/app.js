@@ -1,8 +1,8 @@
 // Global variables
 let currentUser = null;
 let logoutTimer;
-const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 5 minutes in milliseconds
-const WARNING_TIMEOUT = 14.30 * 60 * 1000; // 4.5 minutes in milliseconds
+const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 5 minutes in milliseconds
+const WARNING_TIMEOUT = 9.30 * 60 * 1000; // 4.5 minutes in milliseconds
 
 // Reset the inactivity timer
 function resetInactivityTimer() {
